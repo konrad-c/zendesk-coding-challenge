@@ -14,3 +14,16 @@ The user should also be able to search for empty values, e.g. where description 
 4. Performance - should gracefully handle a significant increase in amount of data
 provided (e.g 10000+ users).
 5. Robustness - should handle and report errors.
+
+## Getting Started
+
+This is a NodeJS & Typescript project.
+Ensure that you have Node installed locally on your machine.
+This project expects a minimum Node version of 10.15.
+
+Steps to get up and running:
+1. Install dependencies: `npm install`
+2. Transpile Typescript to NodeJS: `npm run build`
+3. Run unit tests: `npm test`
+4. To transpile as you make changes, you can run `npm run watch`
+5. To execute the CLI tool from the terminal: `npm run start`
