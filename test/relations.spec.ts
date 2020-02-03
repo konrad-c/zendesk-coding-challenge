@@ -22,6 +22,20 @@ describe("Relations", () => {
             const organization: Organization | undefined = userRelations.Organization.shift();
             expect(organization).toEqual(testOrganization);
         });
+
+        it("should have tickets associated as 'Submitted Tickets'", () => {
+            const userRelations: { 'Submitted Tickets': Ticket[] } = getUserRelations(testData, testUser);
+            expect(userRelations).toHaveProperty('Submitted Tickets');
+            const submittedTicket: Ticket | undefined = userRelations['Submitted Tickets'].shift();
+            expect(submittedTicket).toEqual(testTicket);
+        });
+
+        it("should have tickets associated as 'Assigned Tickets'", () => {
+            const userRelations: { 'Assigned Tickets': Ticket[] } = getUserRelations(testData, testUser);
+            expect(userRelations).toHaveProperty('Assigned Tickets');
+            const assignedTicket: Ticket | undefined = userRelations['Assigned Tickets'].shift();
+            expect(assignedTicket).toEqual(testTicket);
+        });
     });
 
     describe("Ticket", () => {

@@ -1,7 +1,7 @@
 import { DataType, Entity } from "./entity";
 import { Dataset } from "../dataset";
-import { search } from '../search/index';
 import { Organization } from "./organization";
+import { Ticket } from "./ticket";
 
 export class User implements Entity {
     datatype: DataType = DataType.User;
@@ -27,3 +27,5 @@ export class User implements Entity {
 }
 
 export const getOrganization = (dataset: Dataset, user: User): Organization | undefined => dataset.organizations.find(org => org._id == user.organization_id);
+export const getSubmittedTickets = (dataset: Dataset, user: User): Ticket[] => dataset.tickets.filter(ticket => ticket.submitter_id == user._id);
+export const getAssignedTickets = (dataset: Dataset, user: User): Ticket[] => dataset.tickets.filter(ticket => ticket.assignee_id == user._id);

@@ -1,6 +1,5 @@
 import { DataType, Entity } from "./entity";
 import { Dataset } from "../dataset";
-import { search } from '../search/index';
 import { User } from "./user";
 import { Organization } from "./organization";
 

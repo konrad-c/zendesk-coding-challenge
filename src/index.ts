@@ -74,6 +74,7 @@ async function searchFlow() {
 async function inspectSearchResults(results: Entity[], bookmark: number = 0) {
     const currentResult: Entity = results[bookmark];
     printObject(currentResult);
+    print(`Viewing result ${bookmark + 1} of ${results.length}.`);
 
     const actions = [];
     if(bookmark + 1 < results.length)   actions.push({ name: "Next", value: () => inspectSearchResults(results, bookmark + 1) });

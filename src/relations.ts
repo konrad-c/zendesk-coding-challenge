@@ -1,13 +1,17 @@
 import { Dataset } from "./dataset";
 import { DataType, Entity } from "./models/entity";
-import { User, getOrganization as getUserOrganization } from "./models/user";
+import { User, getOrganization as getUserOrganization, getSubmittedTickets, getAssignedTickets } from "./models/user";
 import { Ticket, getSubmitter, getAssignee, getOrganization as getTicketOrganization } from "./models/ticket";
 import { Organization, getUsers, getTickets } from './models/organization';
 
 export function getUserRelations(dataset: Dataset, user: User) {
     const organization: Organization | undefined = getUserOrganization(dataset, user);
+    const submittedTickets: Ticket[] = getSubmittedTickets(dataset, user);
+    const assignedTickets: Ticket[] = getAssignedTickets(dataset, user);
     return {
-        Organization: organization ? [organization] : []
+        Organization: organization ? [organization] : [],
+        'Submitted Tickets': submittedTickets,
+        'Assigned Tickets': assignedTickets
     };
 }
 
