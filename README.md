@@ -21,6 +21,10 @@ This is a NodeJS & Typescript project.
 Ensure that you have Node installed locally on your machine.
 This project expects a minimum Node version of 10.15.
 
+Currently the program expects the data files to be in the directory `./data`.
+With user, ticket, and organization data to be at paths `./data/users.json`, `./data/tickets.json`, and `./data/organizations.json` respectively.
+The data provided has been added to this repository for ease of use.
+
 Steps to get up and running:
 1. Install dependencies: `npm install`
 2. Transpile Typescript to NodeJS: `npm run build`
