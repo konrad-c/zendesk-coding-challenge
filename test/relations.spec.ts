@@ -1,5 +1,5 @@
 import { Dataset } from '../src/dataset';
-import { getUserRelations, getTicketRelations } from '../src/relations';
+import { getUserRelations, getTicketRelations, getOrganizationRelations } from '../src/relations';
 
 import { testUser } from './data/user';
 import { testOrganization } from './data/organization';
@@ -41,4 +41,24 @@ describe("Relations", () => {
             expect(organization).toEqual(testOrganization);
         });
     });
+
+    // describe("Organization", () => {
+    //     it("should have users associated as Users", () => {
+    //         const organizationRelations = getOrganizationRelations(testData, testOrganization);
+    //         const user: User = organizationRelations.Users.unwrap();
+    //         expect(assignee).toEqual(testUser);
+    //     });
+
+    //     it("should have a user associated as submitter", () => {
+    //         const ticketRelations = getTicketRelations(testData, testTicket);
+    //         const submitter: User = ticketRelations.Submitter.unwrap();
+    //         expect(submitter).toEqual(testUser);
+    //     });
+
+    //     it("should be associated with an organization", () => {
+    //         const ticketRelations = getTicketRelations(testData, testTicket);
+    //         const organization: Organization = ticketRelations.Organization.unwrap();
+    //         expect(organization).toEqual(testOrganization);
+    //     });
+    // });
 });

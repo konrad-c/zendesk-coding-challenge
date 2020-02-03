@@ -15,13 +15,13 @@ import { Entity, DataType } from './models/entity';
 import { getEntityRelations } from './relations';
 
 // UI
-import { Formatter, createJsonFormatter } from './display/formatter';
+import { Formatter, createTableFormatter } from './display/formatter';
 import { dataTypePrompt } from './display/dataset-prompt';
 import { facetPrompt, searchableFieldPrompt } from './display/search-prompt';
 import { listPrompt } from './display/list-prompt';
 console.log("Welcome to this Zendesk Coding Challenge solution!");
 
-const objectFormatter: Formatter = createJsonFormatter(2);
+const objectFormatter: Formatter = createTableFormatter(); // createJsonFormatter(2);
 let dataset: Dataset;
 
 /**

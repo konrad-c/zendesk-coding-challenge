@@ -23,6 +23,6 @@ export class User implements Entity {
     tags: string[];
     suspended: boolean;
     role: "admin" | "agent" | "end-user";
-
-    getOrganization = (dataset: Dataset) => search(dataset.organizations, org => org._id == this.organization_id);
 }
+
+export const getOrganization = (dataset: Dataset, user: User) => search(dataset.organizations, org => org._id == user.organization_id);

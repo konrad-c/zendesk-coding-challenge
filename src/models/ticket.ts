@@ -20,8 +20,8 @@ export class Ticket implements Entity {
     has_incidents: boolean;
     due_at: Date;
     via: "voice" | "chat" | "web";
-
-    getSubmitter = (dataset: Dataset) => search(dataset.users, user => user._id == this.submitter_id);
-    getAssignee = (dataset: Dataset) => search(dataset.users, user => user._id == this.assignee_id);
-    getOrganization = (dataset: Dataset) => search(dataset.organizations, org => org._id == this.organization_id);
 }
+
+export const getSubmitter = (dataset: Dataset, ticket: Ticket) => search(dataset.users, user => user._id == ticket.submitter_id);
+export const getAssignee = (dataset: Dataset, ticket: Ticket) => search(dataset.users, user => user._id == ticket.assignee_id);
+export const getOrganization = (dataset: Dataset, ticket: Ticket) => search(dataset.organizations, org => org._id == ticket.organization_id);
