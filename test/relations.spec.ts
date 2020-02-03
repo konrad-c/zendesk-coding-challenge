@@ -6,6 +6,7 @@ import { testOrganization } from './data/organization';
 import { testTicket } from './data/ticket';
 import { User } from '../src/models/user';
 import { Organization } from '../src/models/organization';
+import { Ticket } from '../src/models/ticket';
 
 const testData: Dataset = {
     users: [testUser],
@@ -16,49 +17,47 @@ const testData: Dataset = {
 describe("Relations", () => {
     describe("User", () => {
         it("should be associated with an organization", () => {
-            const userRelations = getUserRelations(testData, testUser);
-            const organization: Organization = userRelations.Organization.unwrap();
+            const userRelations: { Organization: Organization[] } = getUserRelations(testData, testUser);
+            expect(userRelations).toHaveProperty("Organization");
+            const organization: Organization | undefined = userRelations.Organization.shift();
             expect(organization).toEqual(testOrganization);
         });
     });
 
     describe("Ticket", () => {
         it("should have a user associated as Assignee", () => {
-            const ticketRelations = getTicketRelations(testData, testTicket);
-            const assignee: User = ticketRelations.Assignee.unwrap();
+            const ticketRelations: { Assignee: User[] } = getTicketRelations(testData, testTicket);
+            expect(ticketRelations).toHaveProperty("Assignee");
+            const assignee: User | undefined = ticketRelations.Assignee.shift();
             expect(assignee).toEqual(testUser);
         });
 
         it("should have a user associated as submitter", () => {
-            const ticketRelations = getTicketRelations(testData, testTicket);
-            const submitter: User = ticketRelations.Submitter.unwrap();
+            const ticketRelations: { Submitter: User[] } = getTicketRelations(testData, testTicket);
+            expect(ticketRelations).toHaveProperty("Submitter");
+            const submitter: User | undefined = ticketRelations.Submitter.shift();
             expect(submitter).toEqual(testUser);
         });
 
         it("should be associated with an organization", () => {
-            const ticketRelations = getTicketRelations(testData, testTicket);
-            const organization: Organization = ticketRelations.Organization.unwrap();
+            const ticketRelations: { Organization: Organization[] } = getTicketRelations(testData, testTicket);
+            expect(ticketRelations).toHaveProperty("Organization");
+            const organization: Organization | undefined = ticketRelations["Organization"].shift();
             expect(organization).toEqual(testOrganization);
         });
     });
 
-    // describe("Organization", () => {
-    //     it("should have users associated as Users", () => {
-    //         const organizationRelations = getOrganizationRelations(testData, testOrganization);
-    //         const user: User = organizationRelations.Users.unwrap();
-    //         expect(assignee).toEqual(testUser);
-    //     });
+    describe("Organization", () => {
+        it("should have users associated as Users", () => {
+            const organizationRelations = getOrganizationRelations(testData, testOrganization);
+            const users: User[] = organizationRelations.Users;
+            expect(users).toEqual([testUser]);
+        });
 
-    //     it("should have a user associated as submitter", () => {
-    //         const ticketRelations = getTicketRelations(testData, testTicket);
-    //         const submitter: User = ticketRelations.Submitter.unwrap();
-    //         expect(submitter).toEqual(testUser);
-    //     });
-
-    //     it("should be associated with an organization", () => {
-    //         const ticketRelations = getTicketRelations(testData, testTicket);
-    //         const organization: Organization = ticketRelations.Organization.unwrap();
-    //         expect(organization).toEqual(testOrganization);
-    //     });
-    // });
+        it("should have tickets associated as Tickets", () => {
+            const organizationRelations = getOrganizationRelations(testData, testOrganization);
+            const tickets: Ticket[] = organizationRelations.Tickets;
+            expect(tickets).toEqual([testTicket]);
+        });
+    });
 });

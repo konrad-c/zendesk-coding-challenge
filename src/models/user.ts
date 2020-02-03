@@ -1,6 +1,7 @@
 import { DataType, Entity } from "./entity";
 import { Dataset } from "../dataset";
 import { search } from '../search/index';
+import { Organization } from "./organization";
 
 export class User implements Entity {
     datatype: DataType = DataType.User;
@@ -25,4 +26,4 @@ export class User implements Entity {
     role: "admin" | "agent" | "end-user";
 }
 
-export const getOrganization = (dataset: Dataset, user: User) => search(dataset.organizations, org => org._id == user.organization_id);
+export const getOrganization = (dataset: Dataset, user: User): Organization | undefined => dataset.organizations.find(org => org._id == user.organization_id);
