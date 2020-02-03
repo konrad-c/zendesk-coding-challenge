@@ -1,13 +1,14 @@
 import { Entity } from "./entity";
 
-import { DataType } from "../dataset";
+import { DataType, Dataset } from "../dataset";
+import { search } from "../search";
 
 export class Ticket implements Entity {
     datatype: DataType = DataType.Ticket;
     _id: string;
     url: string;
     external_id: string;
-    created_at: string;
+    created_at: Date;
     type: "incident" | "problem" | "question" | "task";
     subject: string;
     description: string;
@@ -20,6 +21,10 @@ export class Ticket implements Entity {
     has_incidents: boolean;
     due_at: Date;
     via: "voice" | "chat" | "web";
+
+    getSubmitter = (dataset: Dataset) => search(dataset.users, user => user._id == this.submitter_id);
+    getAssignee = (dataset: Dataset) => search(dataset.users, user => user._id == this.assignee_id);
+    getOrganization = (dataset: Dataset) => search(dataset.organizations, org => org._id == this.organization_id);
 }
 
 export const TicketFacets: string[] = [

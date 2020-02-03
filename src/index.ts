@@ -5,17 +5,18 @@ import { Option } from '@usefultools/monads';
 
 import { readFileAsObjectCollection } from './json-reader';
 import { facetSearch } from './search';
-import { DataType, getFacetsByDataType, Dataset, getEntityRelations, getCollectionByType } from './dataset';
+import { DataType, getFacetsByDataType, Dataset, getCollectionByType } from './dataset';
+import { User } from './models/user';
+import { Organization } from './models/organization';
+import { Ticket } from './models/ticket';
+import { Entity } from './models/entity';
+import { getEntityRelations } from './relations';
 
 // UI
 import { Formatter, createJsonFormatter } from './display/formatter';
 import { dataTypePrompt } from './display/dataset-prompt';
 import { facetPrompt, searchValuePrompt } from './display/search-prompt';
 import { listPrompt } from './display/list-prompt';
-import { User } from './models/user';
-import { Organization } from './models/organization';
-import { Ticket } from './models/ticket';
-import { Entity } from './models/entity';
 
 console.log("Welcome to this Zendesk Coding Challenge solution!");
 
@@ -59,25 +60,20 @@ async function searchFlow() {
     });
 }
 
-function getRelatedEntityAction(relationName: string, relationAccessor: () => Option<Entity>, goBackAction: () => Promise<void>): () => Promise<void> {
-    const relatedEntity: Option<Entity> = relationAccessor();
-    return relatedEntity.match({
-        some: entity => () => inspectEntityPrompts(entity),
-        none: () => {
-            console.log(`Unable to retrieve ${relationName} of current entity.`);
-            return () => goBackAction();
-        }
-    })
-}
-
 async function relatedEntityPrompts(entity: Entity) {
-    const entityRelations: Record<string, () => Option<Entity>> = getEntityRelations(dataset, entity);
+    const entityRelations: Record<string, Option<Entity>> = getEntityRelations(dataset, entity);
     const goBackAction = () => inspectEntityPrompts(entity);
 
     const choices = Object.entries(entityRelations)
-        .map(([relationName, accessor]) => [
+        .map(([relationName, relatedEntity]) => [
             relationName, 
-            getRelatedEntityAction(relationName, accessor, goBackAction)
+            relatedEntity.match({
+                some: entity => (() => inspectEntityPrompts(entity)),
+                none: () => {
+                    console.log(`Unable to retrieve ${relationName} of current entity.`);
+                    return () => goBackAction();
+                }
+            })
         ])
         .map(([relationName, action]: [string, () => Promise<void>]) => ({ name: relationName, value: action }));
 

@@ -1,10 +1,12 @@
-import { Option } from '@usefultools/monads';
 import { User, UserFacets } from "./models/user";
 import { Organization, OrganizationFacets } from "./models/organization";
 import { Ticket, TicketFacets } from "./models/ticket";
-import { search } from './search';
-import { Entity } from './models/entity';
 
+/**
+ * DataType enum used in reflection when parsing objects.
+ * This is due to the fact that after transpilation, all entities are simply 'objects'.
+ * Some additional metadata must be added in order to determine their type and safely cast.
+ */
 export enum DataType {
     User = "User",
     Organization = "Organization",
@@ -33,29 +35,4 @@ export function getCollectionByType(dataset: Dataset, dataType: DataType) {
         [DataType.Organization]: dataset.organizations,
         [DataType.Ticket]: dataset.tickets
     }[dataType]
-}
-
-function getUserRelations(dataset: Dataset, user: User): Record<string, () => Option<Entity>> {
-    return {
-        Organization: () => search(dataset.organizations, org => org._id == user.organization_id)
-    };
-}
-
-function getTicketRelations(dataset: Dataset, ticket: Ticket): Record<string, () => Option<Entity>> {
-    return {
-        Submitter: () => search(dataset.users, user => user._id == ticket.submitter_id),
-        Assignee: () => search(dataset.users, user => user._id == ticket.assignee_id),
-        Organization: () => search(dataset.organizations, org => org._id == ticket.organization_id)
-    };
-}
-
-export function getEntityRelations(dataset: Dataset, entity: Entity): Record<string, () => Option<Entity>> {
-    switch(entity.datatype){
-        case DataType.User:
-            return getUserRelations(dataset, entity as User);
-        case DataType.Ticket:
-            return getTicketRelations(dataset, entity as Ticket);
-        default:
-            return {};
-    }
 }
