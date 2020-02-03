@@ -1,15 +1,8 @@
 #!/usr/bin/env node
-
-import { resolve } from 'path';
-
-import { readFileAsObjectCollection } from './json-reader';
 import { filterByFacet } from './search/index';
 import { SearchModel } from './search';
 import { Facet } from './search/field-type';
-import { getSearchModelByDataType, Dataset, getCollectionByType } from './dataset';
-import { User } from './models/user';
-import { Organization } from './models/organization';
-import { Ticket } from './models/ticket';
+import { getSearchModelByDataType, Dataset, getCollectionByType, loadData } from './dataset';
 import { Entity, DataType } from './models/entity';
 import { getEntityRelations } from './relations';
 
@@ -23,23 +16,6 @@ const objectFormatter: Formatter = createTableFormatter(); // createJsonFormatte
 const print = (message: string) => console.log(message);
 const printObject = (obj: object) => print(objectFormatter(obj));
 let dataset: Dataset;
-
-/**
- * Load User, Organization, and Ticket data from files in the directory specified.
- * Expects files to be named 'users.json', 'organizations.json', and 'tickets.json' respectively.
- * @param dataDirectory Relative or absolute path to the directory containing these files. 
- */
-async function loadData(dataDirectory: string): Promise<Dataset> {
-    const userPath: string = resolve(dataDirectory, "users.json"),
-        ticketsPath: string = resolve(dataDirectory, "tickets.json"),
-        organizationsPath: string = resolve(dataDirectory, "organizations.json");
-
-    return ({
-        users: await readFileAsObjectCollection(userPath, User),
-        organizations: await readFileAsObjectCollection(organizationsPath, Organization),
-        tickets: await readFileAsObjectCollection(ticketsPath, Ticket)
-    });
-}
 
 async function exitPrompt() {
     print("So long!");
@@ -102,16 +78,17 @@ async function relatedEntityPrompts(entity: Entity, goBackAction: () => Promise<
 async function init() {
     print("Welcome to this Zendesk Coding Challenge solution!");
     try {
-        dataset = await loadData('./data');
+        dataset = await loadData();
+        await searchFlow();
     } catch(err) {
         print("There was a problem reading the dataset.");
         print("By default this program expects to find data for users, organizations, and tickets at the following path:");
         print("Users: ./data/users.json");
         print("Tickets: ./data/tickets.json");
         print("Organization: ./data/organizations.json");
+
+        process.exit(1);
     }
-    
-    await searchFlow();
 }
 
 init();
