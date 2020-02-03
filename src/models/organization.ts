@@ -1,6 +1,4 @@
-import { Entity } from "./entity";
-
-import { DataType } from "../dataset";
+import { DataType, Entity } from "./entity";
 
 export class Organization implements Entity {
     datatype: DataType = DataType.Organization;
@@ -14,15 +12,3 @@ export class Organization implements Entity {
     shared_tickets: boolean;
     tags: string[];
 }
-
-export const OrganizationFacets: string[] = [
-    "_id",
-    "url",
-    "external_id",
-    "name",
-    "domain_names",
-    "created_at",
-    "details",
-    "shared_tickets",
-    "tags",
-]

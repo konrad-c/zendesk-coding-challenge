@@ -1,6 +1,6 @@
-import { DataType, Dataset } from "../dataset";
-import { Entity } from "./entity";
-import { search } from '../search';
+import { DataType, Entity } from "./entity";
+import { Dataset } from "../dataset";
+import { search } from '../search/index';
 
 export class User implements Entity {
     datatype: DataType = DataType.User;
@@ -26,25 +26,3 @@ export class User implements Entity {
 
     getOrganization = (dataset: Dataset) => search(dataset.organizations, org => org._id == this.organization_id);
 }
-
-export const UserFacets: string[] = [
-    "_id",
-    "url",
-    "external_id",
-    "name",
-    "alias",
-    "created_at",
-    "active",
-    "verified",
-    "shared",
-    "locale",
-    "timezone",
-    "last_login_at",
-    "email",
-    "phone",
-    "signature",
-    "organization_id",
-    "tags",
-    "suspended",
-    "role",
-]

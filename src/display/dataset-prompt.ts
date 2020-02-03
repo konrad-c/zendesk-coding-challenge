@@ -1,4 +1,4 @@
-import { DataType } from "../dataset";
+import { DataType } from "../models/entity";
 import { listPrompt } from "./list-prompt";
 
 export async function dataTypePrompt(): Promise<DataType> {

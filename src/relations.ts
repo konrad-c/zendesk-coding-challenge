@@ -1,7 +1,7 @@
 import { Option } from '@usefultools/monads';
-import { Dataset, DataType } from "./dataset";
+import { Dataset } from "./dataset";
+import { DataType, Entity } from "./models/entity";
 import { User } from "./models/user";
-import { Entity } from "./models/entity";
 import { Ticket } from "./models/ticket";
 
 export function getUserRelations(dataset: Dataset, user: User) {

@@ -1,7 +1,6 @@
-import { Entity } from "./entity";
-
-import { DataType, Dataset } from "../dataset";
-import { search } from "../search";
+import { DataType, Entity } from "./entity";
+import { Dataset } from "../dataset";
+import { search } from '../search/index';
 
 export class Ticket implements Entity {
     datatype: DataType = DataType.Ticket;
@@ -26,22 +25,3 @@ export class Ticket implements Entity {
     getAssignee = (dataset: Dataset) => search(dataset.users, user => user._id == this.assignee_id);
     getOrganization = (dataset: Dataset) => search(dataset.organizations, org => org._id == this.organization_id);
 }
-
-export const TicketFacets: string[] = [
-    "_id",
-    "url",
-    "external_id",
-    "created_at",
-    "type",
-    "subject",
-    "description",
-    "priority",
-    "status",
-    "submitter_id",
-    "assignee_id",
-    "organization_id",
-    "tags",
-    "has_incidents",
-    "due_at",
-    "via",
-]

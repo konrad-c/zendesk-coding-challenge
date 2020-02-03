@@ -1,17 +1,11 @@
-import { User, UserFacets } from "./models/user";
-import { Organization, OrganizationFacets } from "./models/organization";
-import { Ticket, TicketFacets } from "./models/ticket";
-
-/**
- * DataType enum used in reflection when parsing objects.
- * This is due to the fact that after transpilation, all entities are simply 'objects'.
- * Some additional metadata must be added in order to determine their type and safely cast.
- */
-export enum DataType {
-    User = "User",
-    Organization = "Organization",
-    Ticket = "Ticket"
-}
+import { DataType } from "./models/entity";
+import { User } from "./models/user";
+import { Organization } from "./models/organization";
+import { Ticket } from "./models/ticket";
+import { UserModel } from "./search/user-model";
+import { OrganizationModel } from "./search/organization-model";
+import { TicketModel } from "./search/ticket-model";
+import { SearchModel } from "./search/index";
 
 export interface Dataset {
     users: User[];
@@ -19,14 +13,14 @@ export interface Dataset {
     tickets: Ticket[];
 }
 
-export function getFacetsByDataType(dataType: DataType): string[] {
-    const dataTypeToFacetMapping: Record<DataType, string[]> = {
-        [DataType.User]: UserFacets,
-        [DataType.Organization]: OrganizationFacets,
-        [DataType.Ticket]: TicketFacets
+export function getSearchModelByDataType(dataType: DataType): SearchModel {
+    const dataTypeToSearchModelMapping: Record<DataType, SearchModel> = {
+        [DataType.User]: UserModel,
+        [DataType.Organization]: OrganizationModel,
+        [DataType.Ticket]: TicketModel
     };
 
-    return dataTypeToFacetMapping[dataType];
+    return dataTypeToSearchModelMapping[dataType];
 }
 
 export function getCollectionByType(dataset: Dataset, dataType: DataType) {

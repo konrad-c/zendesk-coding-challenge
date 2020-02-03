@@ -4,20 +4,21 @@ import { resolve } from 'path';
 import { Option } from '@usefultools/monads';
 
 import { readFileAsObjectCollection } from './json-reader';
-import { facetSearch } from './search';
-import { DataType, getFacetsByDataType, Dataset, getCollectionByType } from './dataset';
+import { facetSearch } from './search/index';
+import { SearchModel } from './search';
+import { Facet } from './search/field-type';
+import { getSearchModelByDataType, Dataset, getCollectionByType } from './dataset';
 import { User } from './models/user';
 import { Organization } from './models/organization';
 import { Ticket } from './models/ticket';
-import { Entity } from './models/entity';
+import { Entity, DataType } from './models/entity';
 import { getEntityRelations } from './relations';
 
 // UI
 import { Formatter, createJsonFormatter } from './display/formatter';
 import { dataTypePrompt } from './display/dataset-prompt';
-import { facetPrompt, searchValuePrompt } from './display/search-prompt';
+import { facetPrompt, searchableFieldPrompt } from './display/search-prompt';
 import { listPrompt } from './display/list-prompt';
-
 console.log("Welcome to this Zendesk Coding Challenge solution!");
 
 const objectFormatter: Formatter = createJsonFormatter(2);
@@ -46,10 +47,9 @@ async function exitPrompt() {
 
 async function searchFlow() {
     const dataType: DataType = await dataTypePrompt();
-    
-    const availableFacets: string[] = getFacetsByDataType(dataType);
-    const facet: string = await facetPrompt(availableFacets);
-    const searchValue: string = await searchValuePrompt();
+    const searchModel: SearchModel = getSearchModelByDataType(dataType);
+    const facet: Facet = await facetPrompt(searchModel);
+    const searchValue: string | number = await searchableFieldPrompt(facet);
 
     const collection: Entity[] = getCollectionByType(dataset, dataType);
     const searchResult: Option<Entity> = facetSearch(collection, facet, searchValue);
