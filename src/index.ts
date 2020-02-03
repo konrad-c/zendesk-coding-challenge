@@ -12,7 +12,7 @@ import { dataTypePrompt } from './display/dataset-prompt';
 import { facetPrompt, searchableFieldPrompt } from './display/search-prompt';
 import { listPrompt } from './display/list-prompt';
 
-const objectFormatter: Formatter = createTableFormatter(); // createJsonFormatter(2);
+const objectFormatter: Formatter = createTableFormatter(); 
 const print = (message: string) => console.log(message);
 const printObject = (obj: object) => print(objectFormatter(obj));
 let dataset: Dataset;
