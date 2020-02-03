@@ -4,7 +4,7 @@ import { resolve } from 'path';
 import { Option } from '@usefultools/monads';
 
 import { readFileAsObjectCollection } from './json-reader';
-import { facetSearch } from './search/index';
+import { facetSearch, filterByFacet } from './search/index';
 import { SearchModel } from './search';
 import { Facet } from './search/field-type';
 import { getSearchModelByDataType, Dataset, getCollectionByType } from './dataset';
@@ -19,9 +19,10 @@ import { Formatter, createTableFormatter } from './display/formatter';
 import { dataTypePrompt } from './display/dataset-prompt';
 import { facetPrompt, searchableFieldPrompt } from './display/search-prompt';
 import { listPrompt } from './display/list-prompt';
-console.log("Welcome to this Zendesk Coding Challenge solution!");
 
 const objectFormatter: Formatter = createTableFormatter(); // createJsonFormatter(2);
+const print = (message: string) => console.log(message);
+const printObject = (obj: object) => print(objectFormatter(obj));
 let dataset: Dataset;
 
 /**
@@ -42,7 +43,17 @@ async function loadData(dataDirectory: string): Promise<Dataset> {
 }
 
 async function exitPrompt() {
-    console.log("So long!");
+    print("So long!");
+}
+
+const defaultActionOptions = [
+    { name: 'Search Again', value: () => searchFlow() },
+    { name: 'Exit', value: () => exitPrompt() }
+];
+
+async function noResultsFound() {
+    const action: () => any = await listPrompt("What would you like to do now?", defaultActionOptions);
+    await action();
 }
 
 async function searchFlow() {
@@ -52,12 +63,26 @@ async function searchFlow() {
     const searchValue: string | number = await searchableFieldPrompt(facet);
 
     const collection: Entity[] = getCollectionByType(dataset, dataType);
-    const searchResult: Option<Entity> = facetSearch(collection, facet, searchValue);
+    const searchResults: Entity[] = filterByFacet(collection, facet, searchValue);
 
-    searchResult.match({
-        some: result => inspectEntityPrompts(result),
-        none: () => console.log("No results found.")
-    });
+    const numberOfResults: number = searchResults.length;
+    print(`${numberOfResults} results found.`);
+    numberOfResults > 0
+        ? inspectSearchResults(searchResults)
+        : noResultsFound();
+}
+
+async function inspectSearchResults(results: Entity[], bookmark: number = 0) {
+    const currentResult: Entity = results[bookmark];
+    printObject(currentResult);
+
+    const actions = [];
+    if(bookmark + 1 < results.length)   actions.push({ name: "Next", value: () => inspectSearchResults(results, bookmark + 1) });
+    if(bookmark > 0)                    actions.push({ name: "Previous", value: () => inspectSearchResults(results, bookmark - 1) });
+    actions.push({ name: 'Related Entities', value: () => relatedEntityPrompts(currentResult) });
+    actions.push(...defaultActionOptions);
+    const action: () => any = await listPrompt("What would you like to do now?", actions);
+    await action();
 }
 
 async function relatedEntityPrompts(entity: Entity) {
@@ -70,7 +95,7 @@ async function relatedEntityPrompts(entity: Entity) {
             relatedEntity.match({
                 some: entity => (() => inspectEntityPrompts(entity)),
                 none: () => {
-                    console.log(`Unable to retrieve ${relationName} of current entity.`);
+                    print(`Unable to retrieve ${relationName} of current entity.`);
                     return () => goBackAction();
                 }
             })
@@ -84,7 +109,7 @@ async function relatedEntityPrompts(entity: Entity) {
 
 async function inspectEntityPrompts(entity: Entity) {
     // display entity:
-    console.log(objectFormatter(entity));
+    printObject(entity);
     const inspectActions = [
         { name: 'Related Entities', value: () => relatedEntityPrompts(entity) },
         { name: 'Search Again', value: () => searchFlow() },
@@ -95,6 +120,7 @@ async function inspectEntityPrompts(entity: Entity) {
 }
 
 async function init() {
+    print("Welcome to this Zendesk Coding Challenge solution!");
     dataset = await loadData('./data');
     await searchFlow();
 }
