@@ -3,16 +3,19 @@
 import { resolve } from 'path';
 import { Option } from '@usefultools/monads';
 
-import { readFileAsJson } from './json-reader';
+import { readFileAsObjectCollection } from './json-reader';
 import { facetSearch } from './search';
-import { DataType, getDataTypeFacets, Dataset, getEntityRelations, getCollectionByType } from './dataset';
+import { DataType, getFacetsByDataType, Dataset, getEntityRelations, getCollectionByType } from './dataset';
 
 // UI
 import { Formatter, createJsonFormatter } from './display/formatter';
 import { dataTypePrompt } from './display/dataset-prompt';
 import { facetPrompt, searchValuePrompt } from './display/search-prompt';
 import { listPrompt } from './display/list-prompt';
-
+import { User } from './models/user';
+import { Organization } from './models/organization';
+import { Ticket } from './models/ticket';
+import { Entity } from './models/entity';
 
 console.log("Welcome to this Zendesk Coding Challenge solution!");
 
@@ -30,9 +33,9 @@ async function loadData(dataDirectory: string): Promise<Dataset> {
         organizationsPath: string = resolve(dataDirectory, "organizations.json");
 
     return ({
-        users: await readFileAsJson(userPath),
-        organizations: await readFileAsJson(organizationsPath),
-        tickets: await readFileAsJson(ticketsPath)
+        users: await readFileAsObjectCollection(userPath, User),
+        organizations: await readFileAsObjectCollection(organizationsPath, Organization),
+        tickets: await readFileAsObjectCollection(ticketsPath, Ticket)
     });
 }
 
@@ -43,43 +46,38 @@ async function exitPrompt() {
 async function searchFlow() {
     const dataType: DataType = await dataTypePrompt();
     
-    const availableFacets: string[] = getDataTypeFacets(dataType);
+    const availableFacets: string[] = getFacetsByDataType(dataType);
     const facet: string = await facetPrompt(availableFacets);
     const searchValue: string = await searchValuePrompt();
 
-    const collection: object[] = getCollectionByType(dataset, dataType);
-    const searchResult: Option<object> = facetSearch(collection, facet, searchValue);
+    const collection: Entity[] = getCollectionByType(dataset, dataType);
+    const searchResult: Option<Entity> = facetSearch(collection, facet, searchValue);
 
     searchResult.match({
-        some: result => {
-            console.log(objectFormatter(result));
-            inspectEntityPrompts(dataType, result);
-        },
+        some: result => inspectEntityPrompts(result),
         none: () => console.log("No results found.")
     });
 }
 
-// function getRelatedEntityAction(relationName: string, relationAccessor: () => Option<object>, goBackAction: () => Promise<void>): () => Promise<void> {
-//     const relatedEntity: Option<object> = relationAccessor();
-//     return relatedEntity.match({
-//         some: entity => () => inspectEntityPrompts(entity),
-//         none: () => {
-//             console.log(`Unable to retrieve ${relationName} of current entity.`);
-//             return () => goBackAction();
-//         }
-//     })
-// }
+function getRelatedEntityAction(relationName: string, relationAccessor: () => Option<Entity>, goBackAction: () => Promise<void>): () => Promise<void> {
+    const relatedEntity: Option<Entity> = relationAccessor();
+    return relatedEntity.match({
+        some: entity => () => inspectEntityPrompts(entity),
+        none: () => {
+            console.log(`Unable to retrieve ${relationName} of current entity.`);
+            return () => goBackAction();
+        }
+    })
+}
 
-async function relatedEntityPrompts(datatype: DataType, entity: object) {
-    const entityRelations: Record<string, () => Option<object>> = getEntityRelations(dataset, datatype, entity);
-    const goBackAction = () => inspectEntityPrompts(datatype, entity);
-
-    console.log(objectFormatter(Object.keys(entityRelations)));
+async function relatedEntityPrompts(entity: Entity) {
+    const entityRelations: Record<string, () => Option<Entity>> = getEntityRelations(dataset, entity);
+    const goBackAction = () => inspectEntityPrompts(entity);
 
     const choices = Object.entries(entityRelations)
         .map(([relationName, accessor]) => [
             relationName, 
-            goBackAction // getRelatedEntityAction(entity, relationName, accessor)
+            getRelatedEntityAction(relationName, accessor, goBackAction)
         ])
         .map(([relationName, action]: [string, () => Promise<void>]) => ({ name: relationName, value: action }));
 
@@ -88,9 +86,11 @@ async function relatedEntityPrompts(datatype: DataType, entity: object) {
     await action();
 }
 
-async function inspectEntityPrompts(datatype: DataType, entity: object) {
+async function inspectEntityPrompts(entity: Entity) {
+    // display entity:
+    console.log(objectFormatter(entity));
     const inspectActions = [
-        { name: 'Related Entities', value: () => relatedEntityPrompts(datatype, entity) },
+        { name: 'Related Entities', value: () => relatedEntityPrompts(entity) },
         { name: 'Search Again', value: () => searchFlow() },
         { name: 'Exit', value: () => exitPrompt() }
     ];

@@ -1,4 +1,8 @@
-export class User {
+import { DataType } from "../dataset";
+import { Entity } from "./entity";
+
+export class User implements Entity {
+    datatype: DataType = DataType.User;
     _id: number;
     url: string;
     external_id: string;

@@ -1,4 +1,4 @@
-import { facetSearch } from '../src/search';
+import { facetSearch, search } from '../src/search';
 
 const testData: Record<string, any>[] = [
     {
@@ -36,4 +36,17 @@ describe("Search", () => {
             expect(searchResult).toEqual(expectedResult);
         });
     });
+
+    describe("Collection search", () => {
+        it("should return Some(...) when object exists", () => {
+            const result = search(testData, obj => obj.facet1 == 0).unwrap();
+            const expectedResult = { facet1: 0, facet2: 1 };
+            expect(result).toEqual(expectedResult);
+        });
+
+        it("should return None when object cannot be found", () => {
+            const result = search(testData, obj => obj.notFound == 0);
+            expect(result.is_none()).toBeTruthy();
+        });
+    })
 });

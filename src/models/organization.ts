@@ -1,4 +1,9 @@
-export class Organization {
+import { Entity } from "./entity";
+
+import { DataType } from "../dataset";
+
+export class Organization implements Entity {
+    datatype: DataType = DataType.Organization;
     _id: number;
     url: string;
     external_id: string;

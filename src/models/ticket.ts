@@ -1,4 +1,9 @@
-export class Ticket {
+import { Entity } from "./entity";
+
+import { DataType } from "../dataset";
+
+export class Ticket implements Entity {
+    datatype: DataType = DataType.Ticket;
     _id: string;
     url: string;
     external_id: string;
